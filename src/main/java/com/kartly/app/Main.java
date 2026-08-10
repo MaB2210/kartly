@@ -2,7 +2,10 @@ package com.kartly.app;
 
 import com.kartly.domain.Address;
 import com.kartly.domain.Money;
+import com.kartly.domain.Order;
+import com.kartly.domain.OrderLine;
 import com.kartly.domain.enums.OrderStatus;
+import com.kartly.exception.InvalidOrderStateException;
 
 public class Main {
     public static void main(String[] args) {
@@ -17,9 +20,31 @@ public class Main {
             case OrderStatus.Created c -> "Order just Created";
             case OrderStatus.Confirmed c -> "Order is Confirmed";
             case OrderStatus.Shipped s -> "Order Shipped";
-            case OrderStatus.Cancelled c -> "Order Cancelled: " + c.reason();
+            case OrderStatus.Cancelled(String reason)  -> "Order Cancelled: " + reason;
         };
 
         System.out.println(message);
+
+        OrderLine orderLine = new OrderLine("WirelessMouse",Money.of(29.99,"USD"), 2);
+        System.out.println(orderLine.lineTotal());
+
+        Order order = new Order("Cust-001",new Address("5949 Yonge St.","North York","M2M 3V8","Canada"));
+        order.addLine(new OrderLine("Wireless Mouse",Money.of(29.99,"USD"),2));
+        order.addLine(new OrderLine("USB_C Cable",Money.of(9.99,"USD"),1));
+
+        System.out.println("Total: "+order.calculateTotal());
+        System.out.println("Status: "+ order.status());
+
+        order.confirm();
+        order.ship();
+
+        System.out.println("status after shipping: "+order.status());
+
+        try{
+            order.cancel("Changed my mind");
+        }catch (InvalidOrderStateException e){
+            System.out.println("Caught expected error: "+ e.getMessage());
+        }
+
     }
 }
