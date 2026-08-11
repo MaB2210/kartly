@@ -6,6 +6,12 @@ import com.kartly.domain.Order;
 import com.kartly.domain.OrderLine;
 import com.kartly.domain.enums.OrderStatus;
 import com.kartly.exception.InvalidOrderStateException;
+import com.kartly.service.DiscountPolicy;
+import com.kartly.service.FlatAmountDiscount;
+import com.kartly.service.NoDiscount;
+import com.kartly.service.PercentageDiscount;
+
+import java.math.BigDecimal;
 
 public class Main {
     public static void main(String[] args) {
@@ -46,5 +52,19 @@ public class Main {
             System.out.println("Caught expected error: "+ e.getMessage());
         }
 
+        DiscountPolicy noDiscount = new NoDiscount();
+        Money result = noDiscount.apply(Money.of(100.00,"USD"));
+        System.out.println(result);
+
+        Money orderTotal = Money.of(100,"USD");
+
+        DiscountPolicy[] policies = {
+            new NoDiscount(),
+            new PercentageDiscount(BigDecimal.valueOf(10)),
+            new FlatAmountDiscount(Money.of(15,"USD"))
+        };
+        for(DiscountPolicy policy: policies){
+            System.out.println(policy.getClass().getSimpleName() + " => "+ policy.apply(orderTotal));
+        }
     }
 }
