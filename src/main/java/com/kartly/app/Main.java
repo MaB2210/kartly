@@ -1,15 +1,9 @@
 package com.kartly.app;
 
-import com.kartly.domain.Address;
-import com.kartly.domain.Money;
-import com.kartly.domain.Order;
-import com.kartly.domain.OrderLine;
+import com.kartly.domain.*;
 import com.kartly.domain.enums.OrderStatus;
 import com.kartly.exception.InvalidOrderStateException;
-import com.kartly.service.DiscountPolicy;
-import com.kartly.service.FlatAmountDiscount;
-import com.kartly.service.NoDiscount;
-import com.kartly.service.PercentageDiscount;
+import com.kartly.service.*;
 
 import java.math.BigDecimal;
 
@@ -66,5 +60,26 @@ public class Main {
         for(DiscountPolicy policy: policies){
             System.out.println(policy.getClass().getSimpleName() + " => "+ policy.apply(orderTotal));
         }
+
+        Product mouse = new Product("p1","Wireless mouse",Money.of(19.99,"USD"),"Electronics");
+        Product wire = new Product("p2","USB-C cable",Money.of(9.99,"USD"),"Electronics");
+
+        Cart cart = new Cart();
+        cart.addItem(mouse,2);
+        cart.addItem(wire,1);
+        cart.addItem(mouse,1);
+
+        System.out.println("Mouse Quantity: "+ cart.quantityOf(mouse));
+        System.out.println("Full cart: "+cart.items());
+
+        System.out.println("Distinct Categories: "+cart.distinctCategories());
+
+        OrderProcessingQueue queue = new OrderProcessingQueue();
+        queue.enqueue(order);
+        Order urgentOrder = new Order("cust-002",new Address("5949 Yonge St.","North York","M2M 3V8","Canada"));
+        queue.pushUrgent(urgentOrder);
+        System.out.println("Queue Size: "+queue.size());
+        System.out.println("First to process: "+queue.processNext().customerId());
+        System.out.println("Next: "+queue.processNext().customerId());
     }
 }
