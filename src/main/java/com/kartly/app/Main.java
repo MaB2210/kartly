@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
@@ -96,5 +98,21 @@ public class Main {
         orders.sort(byTotalDescending);
         System.out.println("Sorted By Total (highest first): ");
         orders.forEach(o -> System.out.println(o.id() + " - " + o.calculateTotal()));
+
+        Map<String,List<Order>> ordersByStatus = orders.stream()
+                .collect((Collectors.groupingBy(o ->o.status().getClass().getSimpleName())));
+        System.out.println("Orders grouped by status: ");
+        ordersByStatus.forEach((statusName,ordersInStatus) ->
+                System.out.println(statusName + ": " + ordersInStatus.size() + " order(s)"));
+
+        List<Order> nonEmptyOrders = orders.stream()
+                .filter(o -> o.calculateTotal().amount().compareTo(BigDecimal.ZERO) > 0 )
+                .collect(Collectors.toList());
+        System.out.println("Non-empty orders: "+ nonEmptyOrders.size());
+
+        Money grandTotal = orders.stream()
+                .map(Order::calculateTotal)
+                .reduce(Money.of(0.0,"USD"), Money::add);
+        System.out.println("Grand Total across all orders: "+grandTotal);
     }
 }
