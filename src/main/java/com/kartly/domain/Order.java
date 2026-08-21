@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-public class Order {
+public class Order implements Comparable<Order>{
     private final String id;
     private final String customerId;
     private final Address shippingAddress;
@@ -30,6 +30,11 @@ public class Order {
         this.lines = new ArrayList<>();
         this.createdAt = LocalDateTime.now(java.time.ZoneOffset.UTC);
         this.status = new OrderStatus.Created();
+    }
+
+    @Override
+    public int compareTo(Order other){
+        return this.createdAt.compareTo(other.createdAt);
     }
 
     public void ensureModifiable(){

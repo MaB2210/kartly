@@ -6,6 +6,9 @@ import com.kartly.exception.InvalidOrderStateException;
 import com.kartly.service.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -81,5 +84,17 @@ public class Main {
         System.out.println("Queue Size: "+queue.size());
         System.out.println("First to process: "+queue.processNext().customerId());
         System.out.println("Next: "+queue.processNext().customerId());
+
+        List<Order> orders = new ArrayList<>();
+        orders.add(order);
+        orders.add(urgentOrder);
+        orders.sort(null);
+        System.out.println("Sorted By Date: ");
+        orders.forEach(o -> System.out.println(o.id() + " - " + o.createdAt()));
+
+        Comparator<Order> byTotalDescending = (o1, o2) -> o2.calculateTotal().amount().compareTo(o1.calculateTotal().amount());
+        orders.sort(byTotalDescending);
+        System.out.println("Sorted By Total (highest first): ");
+        orders.forEach(o -> System.out.println(o.id() + " - " + o.calculateTotal()));
     }
 }
